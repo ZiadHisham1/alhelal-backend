@@ -12,15 +12,16 @@
     "headless",
     "medusa"
   ],
-  "scripts": {
-    "build": "echo 'Railway: build skipped, using committed .medusa/'",
-    "start": "NODE_OPTIONS='--max-old-space-size=2048' medusa start",
-    "dev": "medusa develop",
-    "lint": "medusa lint",
-    "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
-  },
+ "scripts": {
+  "build": "echo 'Railway/Render: build skipped, using committed .medusa/'",
+  "build:medusa": "NODE_OPTIONS='--max-old-space-size=4096' medusa build",
+  "start": "NODE_OPTIONS='--max-old-space-size=2048' medusa start",
+  "dev": "medusa develop",
+  "lint": "medusa lint",
+  "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+  "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+  "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
+},
   "dependencies": {
     "@medusajs/admin-sdk": "2.21.2",
     "@medusajs/admin-shared": "2.21.2",
