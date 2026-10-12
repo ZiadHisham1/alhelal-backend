@@ -1,0 +1,59 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendTelegramMessage = sendTelegramMessage;
+exports.sendTelegramPhoto = sendTelegramPhoto;
+const TG_API = "https://api.telegram.org";
+function token() {
+    const t = process.env.TG_BOT_TOKEN;
+    if (!t)
+        throw new Error("TG_BOT_TOKEN not set");
+    return t;
+}
+function chatId() {
+    const c = process.env.TG_ADMIN_CHAT_ID;
+    if (!c)
+        throw new Error("TG_ADMIN_CHAT_ID not set");
+    return c;
+}
+async function sendTelegramMessage(text) {
+    const res = await fetch(`${TG_API}/bot${token()}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            chat_id: chatId(),
+            text,
+            parse_mode: "Markdown",
+        }),
+    });
+    const data = await res.json();
+    if (!data.ok)
+        throw new Error(`Telegram sendMessage failed: ${JSON.stringify(data)}`);
+    return data.result;
+}
+async function sendTelegramPhoto(file, caption) {
+    const form = new FormData();
+    form.append("chat_id", chatId());
+    if (caption) {
+        form.append("caption", caption);
+        form.append("parse_mode", "Markdown");
+    }
+    const blob = new Blob([file.buffer], { type: file.mimetype });
+    form.append("photo", blob, file.filename);
+    const res = await fetch(`${TG_API}/bot${token()}/sendPhoto`, {
+        method: "POST",
+        body: form,
+    });
+    const data = await res.json();
+    if (!data.ok)
+        throw new Error(`Telegram sendPhoto failed: ${JSON.stringify(data)}`);
+    // Largest photo is the last entry
+    const photos = data.result.photo;
+    const largest = photos[photos.length - 1];
+    return {
+        message_id: data.result.message_id,
+        file_id: largest.file_id,
+        width: largest.width,
+        height: largest.height,
+    };
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidGVsZWdyYW0uanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi8uLi9zcmMvbGliL3RlbGVncmFtLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBY0Esa0RBYUM7QUFFRCw4Q0ErQkM7QUE1REQsTUFBTSxNQUFNLEdBQUcsMEJBQTBCLENBQUE7QUFFekMsU0FBUyxLQUFLO0lBQ1osTUFBTSxDQUFDLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxZQUFZLENBQUE7SUFDbEMsSUFBSSxDQUFDLENBQUM7UUFBRSxNQUFNLElBQUksS0FBSyxDQUFDLHNCQUFzQixDQUFDLENBQUE7SUFDL0MsT0FBTyxDQUFDLENBQUE7QUFDVixDQUFDO0FBRUQsU0FBUyxNQUFNO0lBQ2IsTUFBTSxDQUFDLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxnQkFBZ0IsQ0FBQTtJQUN0QyxJQUFJLENBQUMsQ0FBQztRQUFFLE1BQU0sSUFBSSxLQUFLLENBQUMsMEJBQTBCLENBQUMsQ0FBQTtJQUNuRCxPQUFPLENBQUMsQ0FBQTtBQUNWLENBQUM7QUFFTSxLQUFLLFVBQVUsbUJBQW1CLENBQUMsSUFBWTtJQUNwRCxNQUFNLEdBQUcsR0FBRyxNQUFNLEtBQUssQ0FBQyxHQUFHLE1BQU0sT0FBTyxLQUFLLEVBQUUsY0FBYyxFQUFFO1FBQzdELE1BQU0sRUFBRSxNQUFNO1FBQ2QsT0FBTyxFQUFFLEVBQUUsY0FBYyxFQUFFLGtCQUFrQixFQUFFO1FBQy9DLElBQUksRUFBRSxJQUFJLENBQUMsU0FBUyxDQUFDO1lBQ25CLE9BQU8sRUFBRSxNQUFNLEVBQUU7WUFDakIsSUFBSTtZQUNKLFVBQVUsRUFBRSxVQUFVO1NBQ3ZCLENBQUM7S0FDSCxDQUFDLENBQUE7SUFDRixNQUFNLElBQUksR0FBRyxNQUFNLEdBQUcsQ0FBQyxJQUFJLEVBQUUsQ0FBQTtJQUM3QixJQUFJLENBQUMsSUFBSSxDQUFDLEVBQUU7UUFBRSxNQUFNLElBQUksS0FBSyxDQUFDLGdDQUFnQyxJQUFJLENBQUMsU0FBUyxDQUFDLElBQUksQ0FBQyxFQUFFLENBQUMsQ0FBQTtJQUNyRixPQUFPLElBQUksQ0FBQyxNQUFNLENBQUE7QUFDcEIsQ0FBQztBQUVNLEtBQUssVUFBVSxpQkFBaUIsQ0FDckMsSUFBNEQsRUFDNUQsT0FBZ0I7SUFFaEIsTUFBTSxJQUFJLEdBQUcsSUFBSSxRQUFRLEVBQUUsQ0FBQTtJQUMzQixJQUFJLENBQUMsTUFBTSxDQUFDLFNBQVMsRUFBRSxNQUFNLEVBQUUsQ0FBQyxDQUFBO0lBQ2hDLElBQUksT0FBTyxFQUFFLENBQUM7UUFDWixJQUFJLENBQUMsTUFBTSxDQUFDLFNBQVMsRUFBRSxPQUFPLENBQUMsQ0FBQTtRQUMvQixJQUFJLENBQUMsTUFBTSxDQUFDLFlBQVksRUFBRSxVQUFVLENBQUMsQ0FBQTtJQUN2QyxDQUFDO0lBRUQsTUFBTSxJQUFJLEdBQUcsSUFBSSxJQUFJLENBQUMsQ0FBQyxJQUFJLENBQUMsTUFBTSxDQUFDLEVBQUUsRUFBRSxJQUFJLEVBQUUsSUFBSSxDQUFDLFFBQVEsRUFBRSxDQUFDLENBQUE7SUFDN0QsSUFBSSxDQUFDLE1BQU0sQ0FBQyxPQUFPLEVBQUUsSUFBSSxFQUFFLElBQUksQ0FBQyxRQUFRLENBQUMsQ0FBQTtJQUV6QyxNQUFNLEdBQUcsR0FBRyxNQUFNLEtBQUssQ0FBQyxHQUFHLE1BQU0sT0FBTyxLQUFLLEVBQUUsWUFBWSxFQUFFO1FBQzNELE1BQU0sRUFBRSxNQUFNO1FBQ2QsSUFBSSxFQUFFLElBQUk7S0FDWCxDQUFDLENBQUE7SUFDRixNQUFNLElBQUksR0FBRyxNQUFNLEdBQUcsQ0FBQyxJQUFJLEVBQUUsQ0FBQTtJQUM3QixJQUFJLENBQUMsSUFBSSxDQUFDLEVBQUU7UUFBRSxNQUFNLElBQUksS0FBSyxDQUFDLDhCQUE4QixJQUFJLENBQUMsU0FBUyxDQUFDLElBQUksQ0FBQyxFQUFFLENBQUMsQ0FBQTtJQUVuRixrQ0FBa0M7SUFDbEMsTUFBTSxNQUFNLEdBQUcsSUFBSSxDQUFDLE1BQU0sQ0FBQyxLQUFrRSxDQUFBO0lBQzdGLE1BQU0sT0FBTyxHQUFHLE1BQU0sQ0FBQyxNQUFNLENBQUMsTUFBTSxHQUFHLENBQUMsQ0FBQyxDQUFBO0lBRXpDLE9BQU87UUFDTCxVQUFVLEVBQUUsSUFBSSxDQUFDLE1BQU0sQ0FBQyxVQUFvQjtRQUM1QyxPQUFPLEVBQUUsT0FBTyxDQUFDLE9BQU87UUFDeEIsS0FBSyxFQUFFLE9BQU8sQ0FBQyxLQUFLO1FBQ3BCLE1BQU0sRUFBRSxPQUFPLENBQUMsTUFBTTtLQUN2QixDQUFBO0FBQ0gsQ0FBQyJ9
