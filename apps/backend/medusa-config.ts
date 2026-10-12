@@ -13,8 +13,22 @@ export default defineConfig({
       cookieSecret: process.env.COOKIE_SECRET,
     },
   },
-  modules: [
-    // 🚫 No custom payment module yet.
-    // Medusa ships with `pp_system_default` enabled automatically.
-  ],
+  modules: {
+  file: {
+    resolve: "@medusajs/medusa/file",
+    options: {
+      providers: [
+        {
+          resolve: "./src/modules/file-supabase",
+          id: "supabase",
+          options: {
+            supabaseUrl: process.env.SUPABASE_URL,
+            supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+            bucket: "medusa",
+          },
+        },
+      ],
+    },
+  },
+},
 });
